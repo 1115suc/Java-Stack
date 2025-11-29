@@ -53,3 +53,28 @@ JSON Web Token（JWT-字符串）是一个非常轻巧的规范。这个规范�
 
 ## 实现JWT认证
 
+### 引入依赖
+```xml
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt</artifactId>
+    <version>0.9.1</version>
+</dependency>
+```
+
+### 生成JWT令牌
+```java
+@Test
+public void testGenerate(){
+    String compact = Jwts.builder()
+        .setId(UUID.randomUUID().toString())//设置唯一标识
+        .setSubject("title") //设置主题
+        .claim("name", "张三") //自定义信息
+        .claim("age", 88) //自定义信息
+        .setExpiration(new Date()) //设置过期时间
+        .setIssuedAt(new Date()) //令牌签发时间
+        .signWith(SignatureAlgorithm.HS256, "1115suc")//签名算法, 秘钥
+        .compact();
+    System.out.println(compact);
+}
+```
