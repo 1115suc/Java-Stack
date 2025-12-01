@@ -249,7 +249,7 @@ public class AsyncCacheService {
 - 缓存雪崩：设置不同的过期时间
 - 缓存击穿：热点数据永不过期或加互斥锁
 
-> 💡 提示：
+> 💡 提示
 > - 使用 `CacheLoader` 可以实现自动加载缺失的缓存项
 > - 结合 Spring Actuator 可以监控缓存性能指标
 > - 生产环境中建议开启缓存统计以便调优
