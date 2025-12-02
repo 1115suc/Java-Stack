@@ -295,8 +295,32 @@ public class UserDaoFactoryBean implements FactoryBean<UserDao> {
 <bean id="userDao" class="course.factory.UserDaoFactoryBean"/>
 ```
 
+### 依赖注入
 
+#### setter方法注入
 
+- 引用类型
+![1671182583315.png](img/1671182583315.png)
 
+- 简单类型
+![image-20210729203728173.png](img/image-20210729203728173.png)
 
+#### 构造方法注入
 
+- 引用类型
+![image-20210729203859855.png](img/image-20210729203859855.png)
+
+- 简单类型
+![image-20210729204006542.png](img/image-20210729204006542.png)
+
+- 参数适配
+![image-20210729204117697.png](img/image-20210729204117697.png)
+
+#### 依赖注入方式选择
+
+1. 强制依赖使用构造器进行，使用setter注入有概率不进行注入导致null对象出现
+2. 可选依赖使用setter注入进行，灵活性强
+3. Spring框架倡导使用构造器，第三方框架内部大多数采用构造器注入的形式进行数据初始化，相对严谨
+4. 如果有必要可以两者同时使用，使用构造器注入完成强制依赖的注入，使用setter注入完成可选依赖的注入
+5. 实际开发过程中还要根据实际情况分析，如果受控对象没有提供setter方法就必须使用构造器注入
+6. 自己开发的模块推荐使用setter注入
