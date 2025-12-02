@@ -1,6 +1,6 @@
-# 🔐 SpringSecurity 安全框架
+# 🔐 Spring Security 安全框架详解
 
-## 🚀 SpringSecurity 快速入门
+## 🚀 Spring Security 快速入门
 
 ### 📦 依赖引入与基础配置
 ```xml
@@ -10,15 +10,16 @@
 </dependency>
 ```
 
+
 ### ⚙️ 核心配置实践
 
 #### 🔑 用户认证配置 - 基于内存用户存储
 
 ##### 🎯 实现步骤
 
-- `@EnableWebSecurity` 开启web安全设置生效
-- 继承`WebSecurityConfigurerAdapter`类
-- 注入`UserDetailsService`服务类
+- 使用 `@EnableWebSecurity` 开启 web 安全设置生效
+- 继承 `WebSecurityConfigurerAdapter` 类
+- 注入 `UserDetailsService` 服务类
 
 ```java
 @Configuration
@@ -35,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //构建用户,真实开发中用户信息要从数据库加载构建
         UserDetails u1 = User
                 .withUsername("1115suc")
-                .password("{noop}123456")//{noop}:no operration--》表示登录时对避免不做任何操作，说白了就是明文比对
+                .password("{noop}123456")//{noop}:no operation--》表示登录时对避免不做任何操作，说白了就是明文比对
                 .authorities("P5", "ROLE_ADMIN")//用户的权限信息
                 .build();
         UserDetails u2 = User
@@ -49,17 +50,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 }
 ```
-> 在userDetailsService()方法中 返回了一个UserDetailsService对象给spring容器管理，当用户发生登录认证行为时，Spring Security底层会自动调用UserDetailsService类型bean提供的用户信息进行合法比对，如果比对成功则资源放行，否则就认证失败；
+
+> 在 `userDetailsService()` 方法中返回了一个 `UserDetailsService` 对象给 spring 容器管理，当用户发生登录认证行为时，Spring Security 底层会自动调用 `UserDetailsService` 类型 bean 提供的用户信息进行合法比对，如果比对成功则资源放行，否则就认证失败；
 
 ---
 
-#### 🛡️ URL授权配置 - 基于HTTP安全配置
+#### 🛡️ URL 授权配置 - 基于 HTTP 安全配置
 
 ##### 🎯 实现步骤
 
-- `@EnableWebSecurity` 开启web安全设置生效
-- 继承`WebSecurityConfigurerAdapter`类
-- 重写`configure(HttpSecurity http)`方法
+- 使用 `@EnableWebSecurity` 开启 web 安全设置生效
+- 继承 `WebSecurityConfigurerAdapter` 类
+- 重写 `configure(HttpSecurity http)` 方法
 
 ```java
 @Configuration
@@ -100,6 +102,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 }
 ```
+
+
 ---
 
 #### 📝 方法级授权配置 - 基于注解的权限控制
@@ -109,6 +113,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 ```java
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 ```
+
 - 调整资源配置类
 ```java
 @Override
@@ -122,6 +127,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests();//授权方法，该方法后有若干子方法进行不同的授权规则处理
     }
 ```
+
 - 注解配置资源权限
 ```java
  /**
@@ -150,13 +156,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 ```
 
+
 ---
 
-#### 🔍 自定义Security认证过滤器 - 高级认证方案
+#### 🔍 自定义 Security 认证过滤器 - 高级认证方案
 
 ![1646452649158.png](img/1646452649158.png)
 
-##### 📝 1.1 数据库用户认证服务 - 自定义UserDetailsService
+##### 📝 1.1 数据库用户认证服务 - 自定义 UserDetailsService
 
 ```java
 @Service("userDetailsService")
@@ -182,7 +189,8 @@ public class MyUserDetailServiceImpl implements UserDetailsService {
 }
 ```
 
-##### 📝 1.2 JSON登录认证过滤器 - 自定义AbstractAuthenticationProcessingFilter
+
+##### 📝 1.2 JSON 登录认证过滤器 - 自定义 AbstractAuthenticationProcessingFilter
 
 ```java
 public class MyUserNamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -235,7 +243,8 @@ public class MyUserNamePasswordAuthenticationFilter extends AbstractAuthenticati
 }
 ```
 
-##### 📝 1.3 认证过滤器配置 - 自定义SecurityConfig集成
+
+##### 📝 1.3 认证过滤器配置 - 自定义 SecurityConfig 集成
 
 ```java
     // 配置授权策略
@@ -259,7 +268,8 @@ public class MyUserNamePasswordAuthenticationFilter extends AbstractAuthenticati
     }
 ```
 
-##### 📝 1.4 JWT无状态认证 - Token认证方案
+
+##### 📝 1.4 JWT 无状态认证 - Token 认证方案
 
 ```java
 @Override
@@ -286,7 +296,8 @@ public class MyUserNamePasswordAuthenticationFilter extends AbstractAuthenticati
     }
 ```
 
-##### 📝 1.5 JWT授权过滤器 - Token校验过滤器
+
+##### 📝 1.5 JWT 授权过滤器 - Token 校验过滤器
 
 ![renzheng.png](img/renzheng.png)
 ![授权校验流程.png](img/shouquan.png)
@@ -334,7 +345,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 }
 ```
 
-##### 📝 1.6 授权过滤器配置 - 集成Token校验机制
+
+##### 📝 1.6 授权过滤器配置 - 集成 Token 校验机制
 
 ```java
 //  给访问的资源配置权 限过滤
@@ -359,9 +371,10 @@ public AuthenticationFilter authenticationFilter(){
 }
 ```
 
+
 ##### 📝 1.7 异常处理配置 - 权限拒绝与认证入口点
 
-- 权限拒绝处理器 - 实现AccessDeniedHandler接口：
+- 权限拒绝处理器 - 实现 AccessDeniedHandler 接口：
 ```java
 @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -379,7 +392,8 @@ public AuthenticationFilter authenticationFilter(){
     }
 ```
 
-- 认证入口点 - 实现AuthenticationEntryPoint接口：
+
+- 认证入口点 - 实现 AuthenticationEntryPoint 接口：
 ```java
 @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -407,15 +421,61 @@ public AuthenticationFilter authenticationFilter(){
 }        
 ```
 
-## 🔍 SpringSecurity 认证授权原理解析
-- Spring Security所解决的问题就是安全访问控制，而安全访问控制功能其实就是对所有进入系统的请求进行拦截，校验每个请求是否能够访问它所期望的资源。根据前边知识的学习，可以通过Filter或AOP等技术来实现；
-- Spring Security对Web资源的保护是基于Filter过滤器+AOP实现的，所以我们从Filter来入手，逐步深入Spring Security原理；
-- 当初始化Spring Security时，会创建一个名为 SpringSecurityFilterChain的Servlet过滤器，类型为org.springframework.security.web.FilterChainProxy，它实现了javax.servlet.Filter，因此外部的请求会经过该类；
-![image-20210314174535436.png](img/image-20210314174535436.png)
 
-FilterChainProxy是一个代理，真正起作用的是FilterChainProxy中SecurityFilterChain所包含的各个Filter，同时 这些Filter作为Bean被Spring管理，它们是Spring Security核心，各有各的职责，但他们并不直接处理用户的认 证，也不直接处理用户的授权，而是把它们交给了认证管理器
-（AuthenticationManager）和决策管理器 （AccessDecisionManager）进行处理。
+## 🔍 Spring Security 认证授权原理解析
+
+- Spring Security 所解决的问题就是安全访问控制，而安全访问控制功能其实就是对所有进入系统的请求进行拦截，校验每个请求是否能够访问它所期望的资源。根据前边知识的学习，可以通过 Filter 或 AOP 等技术来实现；
+- Spring Security 对 Web 资源的保护是基于 Filter 过滤器 + AOP 实现的，所以我们从 Filter 来入手，逐步深入 Spring Security 原理；
+- 当初始化 Spring Security 时，会创建一个名为 SpringSecurityFilterChain 的 Servlet 过滤器，类型为 org.springframework.security.web.FilterChainProxy，它实现了 javax.servlet.Filter，因此外部的请求会经过该类；
+  ![image-20210314174535436.png](img/image-20210314174535436.png)
+
+FilterChainProxy 是一个代理，真正起作用的是 FilterChainProxy 中 SecurityFilterChain 所包含的各个 Filter，同时 这些 Filter 作为 Bean 被 Spring 管理，它们是 Spring Security 核心，各有各的职责，但他们并不直接处理用户的认 证，也不直接处理用户的授权，而是把它们交给了认证管理器（AuthenticationManager）和决策管理器（AccessDecisionManager）进行处理。
 
 下面介绍过滤器链中主要的几个过滤器及其作用：
 
-- SecurityContextPersistenceFilter 这个Filter是整个拦截过程的入口和出口（也就是第一个和最后一个拦截器），会在请求开始时从配置好的 SecurityContextRepository 中获取SecurityContext，然后把它设置给 SecurityContextHolder。在请求完成后将SecurityContextHolder 持有的 SecurityContext 再保存到配置好 的SecurityContextRepository，同时清除 securityContextHolder 所持有的 SecurityContext；
+- SecurityContextPersistenceFilter 这个 Filter 是整个拦截过程的入口和出口（也就是第一个和最后一个拦截器），会在请求开始时从配置好的 SecurityContextRepository 中获取 SecurityContext，然后把它设置给 SecurityContextHolder。在请求完成后将 SecurityContextHolder 持有的 SecurityContext 再保存到配置好 的 SecurityContextRepository，同时清除 securityContextHolder 所持有的 SecurityContext；
+
+## 🎯 Spring Security 面试重点总结
+
+### 1. Spring Security 的核心组件有哪些？各自的作用是什么？
+
+| 组件 | 作用 |
+|------|------|
+| `AuthenticationManager` | 负责认证用户的凭证 |
+| `UserDetailsService` | 提供用户详细信息 |
+| `AccessDecisionManager` | 决定是否允许访问特定资源 |
+| `SecurityContextHolder` | 存储当前安全上下文 |
+| `FilterChainProxy` | 管理一系列安全过滤器 |
+
+### 2. Spring Security 的工作流程是怎样的？
+
+1. 用户发起请求
+2. 请求首先被 `FilterChainProxy` 拦截
+3. 根据配置决定是否需要认证
+4. 如果需要认证，调用 `AuthenticationManager` 进行认证
+5. 认证成功后，将用户信息保存到 `SecurityContext`
+6. 判断是否有权限访问目标资源
+7. 若有权限，则放行请求
+
+### 3. 如何自定义登录认证方式？
+
+可以通过继承 `AbstractAuthenticationProcessingFilter` 实现自定义认证过滤器，并将其加入到过滤器链中。
+
+### 4. Spring Security 支持哪些认证方式？
+
+- 表单登录
+- HTTP Basic 认证
+- OAuth2
+- JWT
+- LDAP
+- Remember Me 功能
+
+### 5. CSRF 是什么？如何防护？
+
+CSRF (Cross-site request forgery) 是一种跨站请求伪造攻击。Spring Security 默认启用 CSRF 防护，可通过配置 `.csrf().disable()` 禁用，但不建议这样做。
+
+### 6. 如何实现权限控制？
+
+- URL 级别控制：使用 `antMatchers()` 和相关方法
+- 方法级别控制：使用 `@PreAuthorize`、`@PostAuthorize` 等注解
+- 基于角色的访问控制：使用 `hasRole()`、`hasAnyRole()` 等方法
