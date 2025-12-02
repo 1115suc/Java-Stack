@@ -251,7 +251,6 @@ public class SpringConfig {
   }
   ```
 
-
 - 环绕通知中可以手工书写对原始方法的调用，得到的结果即为原始方法的返回值
   ```java
   @Around("pt()")
@@ -261,7 +260,6 @@ public class SpringConfig {
       return ret;
   }
   ```
-
 
 ### 获取异常
 
