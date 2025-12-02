@@ -52,7 +52,7 @@ public class BookDaoImpl implements BookDao {
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl"></bean>
+    <bean id="bookService" class="course.service.impl.BookServiceImpl"></bean>
 
 </beans>
 ````
@@ -128,9 +128,9 @@ public class BookServiceImpl implements BookService {
     	id属性：表示给bean起名字
     	class属性：表示给bean定义类型
 	-->
-    <bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>
+    <bean id="bookDao" class="course.dao.impl.BookDaoImpl"/>
 
-    <bean id="bookService" class="com.itheima.service.impl.BookServiceImpl">
+    <bean id="bookService" class="course.service.impl.BookServiceImpl">
         <!--配置server与dao的关系
 			property标签：表示配置当前bean的属性
         	name属性：表示配置哪一个具体的属性
@@ -141,11 +141,11 @@ public class BookServiceImpl implements BookService {
 </beans>
 ```
 
-### Bean的实例化三种方式
+### Bean的实例化四种方式
 
 #### 构造方法实例化
 
-- `BookDaoImpl`实现类
+- 1.`BookDaoImpl`实现类
 ```java
 public class BookDaoImpl implements BookDao {
     public BookDaoImpl() {
@@ -157,13 +157,13 @@ public class BookDaoImpl implements BookDao {
 }
 ```
 
-- `applicationContext.xml`配置
+- 2.`applicationContext.xml`配置
 ```xml
 <!--方式一：构造方法实例化bean-->
-<bean id="bookDao" class="com.itheima.dao.impl.BookDaoImpl"/>
+<bean id="bookDao" class="course.dao.impl.BookDaoImpl"/>
 ```
 
-- `AppForInstanceBook`测试类
+- 3.`AppForInstanceBook`测试类
 ```java
 public class AppForInstanceBook {
     public static void main(String[] args) {
@@ -180,7 +180,7 @@ public class AppForInstanceBook {
 
 #### 静态工厂实例化
 
-- `OrderDao`接口和`OrderDaoImpl`实现类
+- 1.`OrderDao`接口和`OrderDaoImpl`实现类
 ```java
 public interface OrderDao {
     public void save();
@@ -192,7 +192,7 @@ public class OrderDaoImpl implements OrderDao {
 }
 ```
 
-- `OrderDaoFatory`工厂类
+- 2.`OrderDaoFatory`工厂类
 ```java
 public class OrderDaoFactory {
     public static OrderDao getOrderDao(){
@@ -202,15 +202,15 @@ public class OrderDaoFactory {
 }
 ```
 
-- `applicationContext.xml`配置
+- 3.`applicationContext.xml`配置  
 ```xml
 <!--方式二：使用静态工厂实例化bean-->
-<bean id="orderDao" class="com.itheima.factory.OrderDaoFactory" factory-method="getOrderDao"/>
+<bean id="orderDao" class="course.factory.OrderDaoFactory" factory-method="getOrderDao"/>
 ```
 
 ![image-20210729195248948.png](img/image-20210729195248948.png)
 
-- `AppForInstanceOrder`测试类
+- 4.`AppForInstanceOrder`测试类
 ```java
 public class AppForInstanceOrder {
     public static void main(String[] args) {
@@ -226,6 +226,76 @@ public class AppForInstanceOrder {
 
 
 #### 实例工厂实例化
+
+- 1.`UserDao`接口和`UserDaoImpl`实现类
+```java
+public interface UserDao {
+    public void save();
+}
+public class UserDaoImpl implements UserDao {
+    public void save() {
+        System.out.println("user dao save ...");
+    }
+}
+```
+
+- 2.`UserDaoFactory`工厂类
+```java
+//实例工厂创建对象
+public class UserDaoFactory {
+    public UserDao getUserDao(){
+        return new UserDaoImpl();
+    }
+}
+```
+- 3.`applicationContext.xml`配置
+```xml
+<!--方式三：使用实例工厂实例化bean-->
+<bean id="userFactory" class="course.factory.UserDaoFactory"/>
+<bean id="userDao" factory-method="getUserDao" factory-bean="userFactory"/>
+```
+
+![image-20210729200203249.png](img/image-20210729200203249.png)
+
+- 4.`AppForInstanceUser`测试类
+```java
+public class AppForInstanceUser {
+    public static void main(String[] args) {
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+        UserDao userDao = (UserDao) ctx.getBean("userDao");
+        userDao.save();
+    }
+}
+```
+
+- 运行结果
+![image-20210729200240820.png](img/image-20210729200240820.png)
+
+
+#### 实现`FactoryBean<T>`方式实例化
+
+- 1.定义`UserDaoFactoryBean`实现`FactoryBean<UserDao>`接口
+```java
+//FactoryBean创建对象
+public class UserDaoFactoryBean implements FactoryBean<UserDao> {
+    //代替原始实例工厂中创建对象的方法
+    public UserDao getObject() throws Exception {
+        return new UserDaoImpl();
+    }
+
+    public Class<?> getObjectType() {
+        return UserDao.class;
+    }
+}
+```
+
+- 2.`applicationContext.xml`配置
+```xml
+<!--方式四：使用FactoryBean实例化bean-->
+<bean id="userDao" class="course.factory.UserDaoFactoryBean"/>
+```
+
+
 
 
 
