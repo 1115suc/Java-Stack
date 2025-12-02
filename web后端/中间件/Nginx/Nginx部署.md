@@ -10,19 +10,27 @@ docker pull nginx
 
 ### 2. 创建 Nginx 配置文件目录
 ```shell
-mkdir -p /SuChan/docker/volume/nginx_info/conf
-mkdir -p /SuChan/docker/volume/nginx_info/log
-mkdir -p /SuChan/docker/volume/nginx_info/html
+mkdir -p /usr/local/nginx_info/conf
+mkdir -p /usr/local/nginx_info/log
+mkdir -p /usr/local/nginx_info/html
 ```
 
+- 拷贝默认配置文件
+```shell
+docker run --name nginx -p 80:80 -d nginx
+docker cp nginx:/etc/nginx/nginx.conf /usr/local/nginx_info/conf/nginx.conf
+docker cp nginx:/etc/nginx/conf.d /usr/local/nginx_info/conf/conf.d
+docker cp nginx:/usr/share/nginx/html /usr/local/nginx_info/
+```
 
 ### 3. 创建 Nginx 容器
 ```shell
-docker run -d --name nginx \
-        -v /SuChan/docker/volume/nginx_info/conf:/etc/nginx/conf.d \
-        -v /SuChan/docker/volume/nginx_info/log:/var/log/nginx \
-        -v /SuChan/docker/volume/nginx_info/html:/usr/share/nginx/html \
-        -p 80:80 nginx
+docker run --name nginx \
+    -v /usr/local/nginx_info/conf/nginx.conf:/etc/nginx/nginx.conf \
+    -v /usr/local/nginx_info/conf/conf.d:/etc/nginx/conf.d \
+    -v /usr/local/nginx_info/log:/var/log/nginx \
+    -v /usr/local/nginx_info/html:/usr/share/nginx/html \
+    -p 80:80 -d nginx
 ```
 
 
@@ -32,7 +40,6 @@ docker run -d --name nginx \
 firewall-cmd --zone=public --remove-port=80/tcp --permanent
 firewall-cmd --reload
 ```
-
 
 ---
 
