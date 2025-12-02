@@ -90,7 +90,7 @@ http {
 #### 2. 反向代理配置
 ```nginx
 server {
-    listen       80;
+    listen       82;
     server_name  example.com;
     
     location / {
@@ -104,8 +104,9 @@ server {
 
 
 #### 3. 负载均衡配置
+
 ```nginx
-upstream backend {
+upstream TargetHTTP {
     server 192.168.1.10:8080;
     server 192.168.1.11:8080;
     server 192.168.1.12:8080;
@@ -116,8 +117,28 @@ server {
     server_name example.com;
     
     location / {
-        proxy_pass http://backend;
+        proxy_pass https://TargetHTTP;
     }
+}
+```
+
+- 负载均衡策略
+
+| **名称**     | **说明**         | 特点                                       |
+| ---------- | -------------- | ---------------------------------------- |
+| 轮询         | 默认方式           | 轮流均衡访问服务节点                               |
+| weight     | 权重方式           | 根据权重分发请求,权重大的分配到请求的概率大                   |
+| ip_hash    | 依据ip分配方式       | 根据客户端请求的IP地址计算hash值， 根据hash值来分发请求, 同一个IP发起的请求, 会发转发到同一个服务器上 |
+| least_conn | 依据最少连接方式       | 哪个服务器当前处理的连接少, 请求优先转发到这台服务器（谁闲用谁）        |
+| url_hash   | 依据url分配方式（第三方） | 根据客户端请求url的hash值，来分发请求, 同一个url请求, 会发转发到同一个服务器上 |
+| fair       | 依据响应时间方式（第三方）  | 优先把请求分发给处理请求时间短的服务器（强调响应速度-活干的快，就多干-能者多劳） |
+
+- 权重的配置
+```nginx
+upstream backend {
+    server 192.168.1.10:8080 weight=3;
+    server 192.168.1.11:8080 weight=2;
+    server 192.168.1.12:8080 weight=1;
 }
 ```
 
