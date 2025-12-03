@@ -339,6 +339,7 @@ GET /hotel/_search
 }
 ```
 
+
 这里是查询990开始的数据，也就是 第990~第1000条 数据。
 
 不过，elasticsearch内部分页时，必须先查询 0~1000条，然后截取其中的990 ~ 1000的这10条：
@@ -424,3 +425,225 @@ GET /hotel/_search
 - `highlight`：高亮条件
 
 ![image-20210721203657850.png](img/image-20210721203657850.png)
+
+## 🧰 RestClient 查询文档
+
+### 📦 响应结果结构说明
+elasticsearch返回的结果是一个JSON字符串，结构包含：
+
+- `hits`：命中的结果
+    - `total`：总条数，其中的value是具体的总条数值
+    - `max_score`：所有结果中得分最高的文档的相关性算分
+    - `hits`：搜索结果的文档数组，其中的每个文档都是一个json对象
+        - `_source`：文档中的原始数据，也是json对象
+
+因此，我们解析响应结果，就是逐层解析JSON字符串，流程如下：
+
+- `SearchHits`：通过`response.getHits()`获取，就是JSON中的最外层的`hits`，代表命中的结果
+    - `SearchHits#getTotalHits().value`：获取总条数信息
+    - `SearchHits#getHits()`：获取`SearchHit`数组，也就是文档数组
+        - `SearchHit#getSourceAsString()`：获取文档结果中的`_source`，也就是原始的json文档数据
+
+### 📦 添加依赖说明
+```xml
+<dependency>
+    <groupId>org.elasticsearch.client</groupId>
+    <artifactId>elasticsearch-java</artifactId>
+    <version>7.12.1</version>
+</dependency>
+```
+
+
+### 🔍 基本查询示例详解
+```java
+@Test
+void testMatchAll() throws IOException {
+    // 1.准备Request
+    SearchRequest request = new SearchRequest("hotel");
+    // 2.准备DSL
+    request.source()
+            .query(QueryBuilders.matchAllQuery());
+    // 3.发送请求
+    SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+
+    // 4.解析响应
+    handleResponse(response);
+}
+
+private void handleResponse(SearchResponse response) {
+    // 4.解析响应
+    SearchHits searchHits = response.getHits();
+    // 4.1.获取总条数
+    long total = searchHits.getTotalHits().value;
+    System.out.println("共搜索到" + total + "条数据");
+    // 4.2.文档数组
+    SearchHit[] hits = searchHits.getHits();
+    // 4.3.遍历
+    for (SearchHit hit : hits) {
+        // 获取文档source
+        String json = hit.getSourceAsString();
+        // 反序列化
+        HotelDoc hotelDoc = JSON.parseObject(json, HotelDoc.class);
+        System.out.println("hotelDoc = " + hotelDoc);
+    }
+}
+```
+
+
+### 🔤 match查询
+```java
+@Test
+void testMatch() throws IOException {
+    // 1.准备Request
+    SearchRequest request = new SearchRequest("hotel");
+    // 2.准备DSL
+    request.source()
+        .query(QueryBuilders.matchQuery("all", "如家"));
+    // 3.发送请求
+    SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+    // 4.解析响应
+    handleResponse(response);
+}
+```
+
+
+### 🎯 精确查询
+精确查询主要是两者：
+
+- term：词条精确匹配
+- range：范围查询
+
+与之前的查询相比，差异同样在查询条件，其它都一样。
+
+查询条件构造的API如下：
+![image-20210721220305140.png](img/image-20210721220305140.png)
+
+### 🔗 布尔查询
+
+布尔查询是用must、must_not、filter等方式组合其它查询，代码示例如下：
+![image-20210721220927286.png](img/image-20210721220927286.png)
+
+```java
+@Test
+void testBool() throws IOException {
+    // 1.准备Request
+    SearchRequest request = new SearchRequest("hotel");
+    // 2.准备DSL
+    // 2.1.准备BooleanQuery
+    BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+    // 2.2.添加term
+    boolQuery.must(QueryBuilders.termQuery("city", "杭州"));
+    // 2.3.添加range
+    boolQuery.filter(QueryBuilders.rangeQuery("price").lte(250));
+
+    request.source().query(boolQuery);
+    // 3.发送请求
+    SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+    // 4.解析响应
+    handleResponse(response);
+}
+```
+
+
+### 📊 排序、分页
+搜索结果的排序和分页是与query同级的参数，因此同样是使用`request.source()`来设置。
+
+对应的API如下：
+![image-20210721221121266.png](img/image-20210721221121266.png)
+
+```java
+@Test
+void testPageAndSort() throws IOException {
+    // 页码，每页大小
+    int page = 1, size = 5;
+    // 1.准备Request
+    SearchRequest request = new SearchRequest("hotel");
+    // 2.准备DSL
+    // 2.1.query
+    request.source().query(QueryBuilders.matchAllQuery());
+    // 2.2.排序 sort
+    request.source().sort("price", SortOrder.ASC);
+    // 2.3.分页 from、size
+    request.source().from((page - 1) * size).size(5);
+    // 3.发送请求
+    SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+    // 4.解析响应
+    handleResponse(response);
+}
+```
+
+
+### ✨ 高亮
+
+高亮的代码与之前代码差异较大，有两点：
+
+- 查询的DSL：其中除了查询条件，还需要添加高亮条件，同样是与query同级。
+- 结果解析：结果除了要解析`_source`文档数据，还要解析高亮结果
+
+高亮请求的构建API如下：
+![image-20210721221744883.png](img/image-20210721221744883.png)
+
+```java
+@Test
+void testHighlight() throws IOException {
+    // 1.准备Request
+    SearchRequest request = new SearchRequest("hotel");
+    // 2.准备DSL
+    // 2.1.query
+    request.source().query(QueryBuilders.matchQuery("all", "如家"));
+    // 2.2.高亮
+    request.source().highlighter(new HighlightBuilder().field("name").requireFieldMatch(false));
+    // 3.发送请求
+    SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+    // 4.解析响应
+    handleResponse(response);
+}
+```
+
+
+#### 高亮结果解析
+
+高亮的结果与查询的文档结果默认是分离的，并不在一起。
+
+因此解析高亮的代码需要额外处理：
+![image-20210721222057212.png](img/image-20210721222057212.png)
+
+代码解读：
+
+- 第一步：从结果中获取source。`hit.getSourceAsString()`，这部分是非高亮结果，json字符串。还需要反序列为`HotelDoc`对象
+- 第二步：获取高亮结果。`hit.getHighlightFields()`，返回值是一个Map，key是高亮字段名称，值是`HighlightField`对象，代表高亮值
+- 第三步：从map中根据高亮字段名称，获取高亮字段值对象`HighlightField`
+- 第四步：从`HighlightField`中获取`Fragments`，并且转为字符串。这部分就是真正的高亮字符串了
+- 第五步：用高亮的结果替换`HotelDoc`中的非高亮结果
+
+```java
+private void handleResponse(SearchResponse response) {
+    // 4.解析响应
+    SearchHits searchHits = response.getHits();
+    // 4.1.获取总条数
+    long total = searchHits.getTotalHits().value;
+    System.out.println("共搜索到" + total + "条数据");
+    // 4.2.文档数组
+    SearchHit[] hits = searchHits.getHits();
+    // 4.3.遍历
+    for (SearchHit hit : hits) {
+        // 获取文档source
+        String json = hit.getSourceAsString();
+        // 反序列化
+        HotelDoc hotelDoc = JSON.parseObject(json, HotelDoc.class);
+        // 获取高亮结果
+        Map<String, HighlightField> highlightFields = hit.getHighlightFields();
+        if (!CollectionUtils.isEmpty(highlightFields)) {
+            // 根据字段名获取高亮结果
+            HighlightField highlightField = highlightFields.get("name");
+            if (highlightField != null) {
+                // 获取高亮值
+                String name = highlightField.getFragments()[0].string();
+                // 覆盖非高亮结果
+                hotelDoc.setName(name);
+            }
+        }
+        System.out.println("hotelDoc = " + hotelDoc);
+    }
+}
+```

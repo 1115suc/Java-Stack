@@ -1,50 +1,3 @@
-## 🧰 RestClient 查询文档（Java）详解
-
-### 添加依赖说明
-```xml
-<dependency>
-    <groupId>org.elasticsearch.client</groupId>
-    <artifactId>elasticsearch-java</artifactId>
-    <version>7.12.1</version>
-</dependency>
-```
-
-
-### 基本查询示例详解
-```java
-@Service
-public class HotelService {
-    
-    @Autowired
-    private ElasticsearchRestTemplate client;
-    
-    public void searchHotel() throws IOException {
-        // 1. 准备 Request 对象，指定索引名称
-        SearchRequest request = new SearchRequest("hotel");
-        
-        // 2. 准备 DSL 查询条件，使用 QueryBuilders 构建查询
-        request.source().query(QueryBuilders.matchQuery("all", "如家"));
-        
-        // 3. 发送请求到 Elasticsearch
-        SearchResponse response = client.search(request, RequestOptions.DEFAULT);
-        
-        // 4. 解析响应结果
-        SearchHits hits = response.getHits();
-        System.out.println("共找到：" + hits.getTotalHits().value + "条");
-        
-        // 遍历查询结果
-        for (SearchHit hit : hits.getHits()) {
-            String json = hit.getSourceAsString();  // 获取文档JSON字符串
-            HotelDoc hotelDoc = JSON.parseObject(json, HotelDoc.class);  // 转换为Java对象
-            System.out.println(hotelDoc);
-        }
-    }
-}
-```
-
-
----
-
 ## 📈 数据聚合详解
 
 ### DSL 实现聚合
@@ -157,7 +110,6 @@ GET /hotel/_search
 ```
 
 
----
 
 ## 🔁 数据同步详解
 
@@ -167,47 +119,46 @@ GET /hotel/_search
 ```java
 @Service
 public class HotelDataService {
-    
-    @Autowired
-    private ElasticsearchRestTemplate elasticsearchRestTemplate;
-    
-    // 监听数据库插入操作
-    @RabbitListener(queues = "hotel.insert.queue")
-    public void handleHotelInsert(Long id) {
-        // 查询数据库获取最新数据
-        Hotel hotel = hotelService.getById(id);
-        
-        // 转换为文档对象
-        HotelDoc hotelDoc = new HotelDoc(hotel);
-        
-        // 写入 ES
-        elasticsearchRestTemplate.save(hotelDoc);
-    }
-    
-    // 监听数据库更新操作
-    @RabbitListener(queues = "hotel.update.queue")
-    public void handleHotelUpdate(Long id) {
-        // 查询数据库获取最新数据
-        Hotel hotel = hotelService.getById(id);
-        
-        // 转换为文档对象
-        HotelDoc hotelDoc = new HotelDoc(hotel);
-        
-        // 更新 ES
-        elasticsearchRestTemplate.save(hotelDoc);
-    }
-    
-    // 监听数据库删除操作
-    @RabbitListener(queues = "hotel.delete.queue")
-    public void handleHotelDelete(Long id) {
-        // 从 ES 删除
-        elasticsearchRestTemplate.delete(id.toString(), HotelDoc.class);
-    }
+
+@Autowired
+private ElasticsearchRestTemplate elasticsearchRestTemplate;
+
+// 监听数据库插入操作
+@RabbitListener(queues = "hotel.insert.queue")
+public void handleHotelInsert(Long id) {
+// 查询数据库获取最新数据
+Hotel hotel = hotelService.getById(id);
+
+// 转换为文档对象
+HotelDoc hotelDoc = new HotelDoc(hotel);
+
+// 写入 ES
+elasticsearchRestTemplate.save(hotelDoc);
+}
+
+// 监听数据库更新操作
+@RabbitListener(queues = "hotel.update.queue")
+public void handleHotelUpdate(Long id) {
+// 查询数据库获取最新数据
+Hotel hotel = hotelService.getById(id);
+
+// 转换为文档对象
+HotelDoc hotelDoc = new HotelDoc(hotel);
+
+// 更新 ES
+elasticsearchRestTemplate.save(hotelDoc);
+}
+
+// 监听数据库删除操作
+@RabbitListener(queues = "hotel.delete.queue")
+public void handleHotelDelete(Long id) {
+// 从 ES 删除
+elasticsearchRestTemplate.delete(id.toString(), HotelDoc.class);
+}
 }
 ```
 
 
----
 
 ## 🏢 集群概念详解
 
