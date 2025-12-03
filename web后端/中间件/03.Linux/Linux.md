@@ -253,7 +253,7 @@
 - `tar`：打包和解包文件
   ```bash
   tar -czf archive.tar.gz directory    # 创建压缩包
-  tar -xzf archive.tar.gz             # 解压文件
+  tar -zxvf archive.tar.gz             # 解压文件 -z: gzip压缩 -x: 解压 -v: 显示进度 -f: 覆盖同名文件
   ```
 
 
@@ -293,17 +293,11 @@
   env                   # 显示所有环境变量
   ```
 
-
----
-
-## 💼 开发和面试必备技能
-
 ### 日志分析
 ```bash
 tail -f /var/log/application.log | grep ERROR    # 实时监控错误日志
 awk '{print $1,$4}' access.log                   # 使用 awk 处理日志
 ```
-
 
 ### 端口和服务管理
 ```bash
