@@ -62,7 +62,7 @@ docker run -d \
       kibana:7.17.5
 ```
 
-- Docker 部署 xxl-job-admin
+- Docker 部署 xxl-job-admin (需要创建数据库 xxl_job)
 ```shell
 docker run -d \
       -e PARAMS="--spring.datasource.url=jdbc:mysql://192.168.88.128:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=UTC --spring.datasource.username=root --spring.datasource.password=24364726" 
@@ -71,3 +71,14 @@ docker run -d \
       --name=xxl-job-admin 
       xuxueli/xxl-job-admin:2.3.0
 ```
+
+
+
+- Docker 部署 Sentinel
+```shell
+docker run -d \
+      --name sentinel \
+      -p 8858:8858 \ 
+      bladex/sentinel-dashboard:1.8.0
+```
+
