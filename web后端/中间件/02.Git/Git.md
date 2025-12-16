@@ -49,6 +49,9 @@
 - `git checkout -- <file>`：撤销工作区修改
 - `git reset HEAD <file>`：将文件从暂存区撤回
 
+### 添加远程仓库
+- `git remote add origin <remote_repo_url>`：添加远程仓库
+
 ---
 
 ## 🌿 分支管理
@@ -91,6 +94,20 @@ git remote add origin <remote_repo_url>
       ```bash
       git pull
       ```
+
+> 如果遇到如下问题 <br>
+> PS E:\Java\JavaProject\heima-leadnews> git push -u origin main <br>
+> error: src refspec main does not match any <br>
+> error: failed to push some refs to 'origin' <br>
+> 先查看分支main是否存在 <br>
+> `git branch -a` <br>
+> 如果不存在，创建并切换到main分支 <br>
+> `git checkout -b main` <br>
+> 再次推送 <br>
+> `git push -u origin main` <br>
+> 如果远程仓库是空的，需要添加远程仓库 <br>
+> `git pull origin main --allow-unrelated-histories`
+
 
 ### 克隆远程仓库
 ```bash
