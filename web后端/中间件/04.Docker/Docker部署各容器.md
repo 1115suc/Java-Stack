@@ -73,12 +73,22 @@ docker run -d \
 ```
 
 
-
 - Docker 部署 Sentinel
 ```shell
 docker run -d \
       --name sentinel \
       -p 8858:8858 \ 
       bladex/sentinel-dashboard:1.8.0
+```
+
+- Docker 部署 MinIO
+```shell
+docker run -p 9000:9000 --name minio -d \
+       --restart=always \
+       -e "MINIO_ACCESS_KEY=minio" \
+       -e "MINIO_SECRET_KEY=24364726" \
+       -v /home/data:/data \
+       -v /home/config:/root/.minio minio/minio \
+       server /data
 ```
 

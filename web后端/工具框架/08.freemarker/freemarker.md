@@ -17,7 +17,6 @@
 <#--我是一个freemarker注释-->
 ```
 
-
 2. 插值（Interpolation）：即 **`${..}`** 部分，freemarker会用真实的值代替**`${..}`**
 
 ```velocity
