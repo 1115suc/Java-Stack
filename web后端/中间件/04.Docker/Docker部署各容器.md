@@ -18,16 +18,24 @@ docker run -d -p 3306:3306 --privileged=true \
 docker run -d \
       --name MongoDB \
       -v /SuChan/docker/volume/mongdb/data:/data/db \
+      -v /SuChan/docker/volume/mongdb/log:/data/log \
       -p 27017:27017 \
+      --privileged=true \  
       -e MONGO_INITDB_ROOT_USERNAME=root \
       -e MONGO_INITDB_ROOT_PASSWORD=24364726 \
+      -e TZ=Asia/Shanghai \
       mongo
 ```
+
+> --privileged=true \ 当使用--privileged=true选项运行容器时，Docker会赋予容器几乎与主机相同的权限4。具体来说，这个选项做了以下两件事情：         
+> 1.给容器添加了所有的capabilities         
+> 2.允许容器访问主机的所有设备
+
 
 - Docker 部署 RabbitMQ
 ```shell
 docker run \
-      -e RABBITMQ_DEFAULT_USER=Qing \
+      -e RABBITMQ_DEFAULT_USER=root \
       -e RABBITMQ_DEFAULT_PASS=24364726 \
       -v mq-plugins:/plugins \
       --name RabbitMQ \
