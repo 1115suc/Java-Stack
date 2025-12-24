@@ -1,3 +1,6 @@
+# Docker 容器部署 🐳
+
+
 - Docker 部署 MySQL
 ```shell
 docker run -d -p 3306:3306 --privileged=true \
@@ -17,8 +20,8 @@ docker run -d -p 3306:3306 --privileged=true \
 ```shell
 docker run -d \
       --name MongoDB \
-      -v /SuChan/docker/volume/mongdb/data:/data/db \
-      -v /SuChan/docker/volume/mongdb/log:/data/log \
+      -v /SuChan/docker/volume/mongodb/data:/data/db \
+      -v /SuChan/docker/volume/mongodb/log:/data/log \
       -p 27017:27017 \
       --privileged=true \  
       -e MONGO_INITDB_ROOT_USERNAME=root \
@@ -88,6 +91,7 @@ docker run -d \
       -p 8858:8858 \ 
       bladex/sentinel-dashboard:1.8.0
 ```
+
 
 - Docker 部署 MinIO
 ```shell

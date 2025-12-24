@@ -481,6 +481,7 @@ db.collection.dropIndex(indexName)
 
 
 - 删除所有索引
+
 ```sql
 db.collection.dropIndexes()
 ```
