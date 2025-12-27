@@ -95,10 +95,11 @@ docker run -d \
 
 - Docker 部署 MinIO
 ```shell
-docker run -p 9000:9000 --name minio -d \
+docker run -p 9000:9000 \
+       --name minio -d \
        --restart=always \
        -e "MINIO_ACCESS_KEY=minio" \
-       -e "MINIO_SECRET_KEY=24364726" \
+       -e "MINIO_SECRET_KEY=minio" \
        -v /home/data:/data \
        -v /home/config:/root/.minio minio/minio \
        server /data
