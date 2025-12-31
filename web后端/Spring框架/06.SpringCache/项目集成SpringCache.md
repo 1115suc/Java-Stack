@@ -13,21 +13,21 @@
 ## 🔧 1. 添加 Maven 依赖
 
 ```xml
-<!--不要将缓存放在中间common层，因为如果引用common的第三方不适用缓存，会导致因为场景依赖自动装配的机制导致启动失败-->
-<dependency>
+    <!--不要将缓存放在中间common层，因为如果引用common的第三方不适用缓存，会导致因为场景依赖自动装配的机制导致启动失败-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
+    <!--引入redis的starter依赖-->
+    <dependency>
     <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-cache</artifactId>
-</dependency>
-<!--引入redis的starter依赖-->
-<dependency>
-<groupId>org.springframework.boot</groupId>
-<artifactId>spring-boot-starter-data-redis</artifactId>
-</dependency>
-<!-- redis创建连接池，默认不会创建连接池 -->
-<dependency>
-<groupId>org.apache.commons</groupId>
-<artifactId>commons-pool2</artifactId>
-</dependency>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    <!-- redis创建连接池，默认不会创建连接池 -->
+    <dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-pool2</artifactId>
+    </dependency>
 ```
 
 
