@@ -415,8 +415,10 @@ public class CodeGenerator {
 ```java
 // 配置乐观锁插件
 @Bean
-public OptimisticLockerInnerInterceptor optimisticLockerInnerInterceptor() {
-    return new OptimisticLockerInnerInterceptor();
+public MybatisPlusInterceptor optimisticLockerInterceptor(){
+    MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+    interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
+    return interceptor;
 }
 
 // 实体类中添加版本号字段
@@ -508,7 +510,7 @@ public class User extends Model<User> {
     private Integer deleted;
 
     @ApiModelProperty(value = "版本号")
-    @Version
+    @Version // 乐观锁
     private Integer version;
 }
 ```
