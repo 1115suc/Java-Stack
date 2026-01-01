@@ -219,8 +219,8 @@ spring:
     host: 192.168.200.128
     port: 5672
     virtual-host: /
-    username: itcast
-    password: 123321
+    username: 1115suc
+    password: 24364726
 ```
 
 **发送消息代码**：
