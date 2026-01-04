@@ -105,3 +105,16 @@ docker run -p 9000:9000 \
        server /data
 ```
 
+- Docker 部署 Zookeeper
+```shell
+docker run -d \
+  --name zookeeper \
+  --hostname zookeeper \
+  --network zookeeper-net \
+  -p 2181:2181 \
+  -e TZ="Asia/Shanghai" \
+  -v /root/zookeeper/node-1/data:/data \
+  -v /root/zookeeper/node-1/conf:/conf \
+  zookeeper:3.5.6
+```
+
