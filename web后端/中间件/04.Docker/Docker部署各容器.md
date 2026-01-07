@@ -1,7 +1,8 @@
 # Docker 容器部署 🐳
 
+## Docker 部署数据库
 
-- Docker 部署 MySQL
+### Docker 部署 MySQL
 ```shell
 docker run -d -p 3306:3306 --privileged=true \
       -v /SuChan/docker/volume/mysql/log:/var/log/mysql \
@@ -16,7 +17,7 @@ docker run -d -p 3306:3306 --privileged=true \
       --name mysql mysql:5.7
 ```
 
-- Docker 部署 MongoDB
+### Docker 部署 MongoDB
 ```shell
 docker run -d \
       --name MongoDB \
@@ -34,8 +35,9 @@ docker run -d \
 > 1.给容器添加了所有的capabilities         
 > 2.允许容器访问主机的所有设备
 
+## Docker 部署 消息队列
 
-- Docker 部署 RabbitMQ
+### Docker 部署 RabbitMQ
 ```shell
 docker run \
       -e RABBITMQ_DEFAULT_USER=root \
@@ -48,7 +50,105 @@ docker run \
       -d rabbitmq:3.8-management
 ```
 
-- Docker 部署 Elasticsearch
+
+### Docker 部署 Zookeeper
+
+```shell
+docker run -d \
+  --name zookeeper \
+  --hostname zookeeper \
+  --network kafka-net \
+  -p 2181:2181 \
+  -e TZ="Asia/Shanghai" \
+  -e ALLOW_ANONYMOUS_LOGIN=yes \
+  -v /root/zookeeper/node-1/data:/data \
+  -v /root/zookeeper/node-1/conf:/conf \
+  zookeeper:3.7.2
+```
+
+
+### Docker 部署 Kafka
+
+```shell
+docker run -d \
+  --name kafka \
+  -p 9092:9092 \
+  -p 9999:9999 \
+  --network kafka-net \
+  -e KAFKA_NODE_ID=1 \
+  -e KAFKA_PROCESS_ROLES=broker,controller \
+  -e KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
+  -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+  -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+  -e KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093 \
+  -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
+  -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+  -e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 \
+  -e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1 \
+  -e KAFKA_JMX_PORT=9999 \
+  -e KAFKA_JMX_HOSTNAME=localhost \
+  -e ALLOW_PLAINTEXT_LISTENER=yes \
+  apache/kafka:4.0.1
+```
+
+- kafka 可视化工具 Eagle
+
+```shell
+docker run -d --name kafka-eagle \
+   -p 8048:8048 \
+   -e EFAK_CLUSTER_ZK_LIST="192.168.200.128:2181" \
+   nickzurich/efak:latest
+```
+
+- Kafka 可视化工具 WebUI
+
+1. 拉取 Docker 镜像
+
+```shell
+docker pull lcc1024/kafka_ui_lcc:1.0
+```
+
+2. 创建 KafkaUILCC 的文件夹
+
+```shell
+mkdir -p /usr/local/KafkaUILCC/config
+```
+
+3. 创建 KafkaUILCC 的配置文件
+
+```shell
+vim /usr/local/KafkaUILCC/config/application.properties
+```
+
+```properties
+# zookeeper_connect
+zookeeper.host=你的zookeeper连接地址
+zookeeper.port=你的zookeeper连接端口
+zookeeper.session_timeout=连接超时时间
+```
+
+
+4. 启动 KafkaUILCC
+
+```shell
+docker run --name KafkaUILCC \
+  -p 8093:8093 \
+  --network kafka-net \
+  --ulimit nofile=65536:65536 \
+  --ulimit nproc=4096:4096 \
+  -v /usr/local/kafka_UI_LCC/config/application.properties:/application.properties \
+  -d lcc1024/kafka_ui_lcc:1.0
+```
+
+
+默认登录信息：
+
+- 账号：admin
+- 密码：123456
+
+## Docker 部署其他中间件
+
+### Docker 部署 Elasticsearch
 ```shell
 docker run -d \
       --name elasticsearch \
@@ -63,7 +163,8 @@ docker run -d \
       elasticsearch:7.17.5
 ```
 
-- Docker 部署 Kibana
+
+### Docker 部署 Kibana
 ```shell
 docker run -d \
       --name kibana \
@@ -73,7 +174,8 @@ docker run -d \
       kibana:7.17.5
 ```
 
-- Docker 部署 xxl-job-admin (需要创建数据库 xxl_job)
+
+### Docker 部署 xxl-job-admin (需要创建数据库 xxl_job)
 ```shell
 docker run -d \
       -e PARAMS="--spring.datasource.url=jdbc:mysql://192.168.88.128:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=UTC --spring.datasource.username=root --spring.datasource.password=24364726" 
@@ -84,16 +186,7 @@ docker run -d \
 ```
 
 
-- Docker 部署 Sentinel
-```shell
-docker run -d \
-      --name sentinel \
-      -p 8858:8858 \ 
-      bladex/sentinel-dashboard:1.8.0
-```
-
-
-- Docker 部署 MinIO
+### Docker 部署 MinIO
 ```shell
 docker run -p 9000:9000 \
        --name minio -d \
@@ -105,16 +198,11 @@ docker run -p 9000:9000 \
        server /data
 ```
 
-- Docker 部署 Zookeeper
+
+### Docker 部署 Sentinel
 ```shell
 docker run -d \
-  --name zookeeper \
-  --hostname zookeeper \
-  --network zookeeper-net \
-  -p 2181:2181 \
-  -e TZ="Asia/Shanghai" \
-  -v /root/zookeeper/node-1/data:/data \
-  -v /root/zookeeper/node-1/conf:/conf \
-  zookeeper:3.5.6
+      --name sentinel \
+      -p 8858:8858 \ 
+      bladex/sentinel-dashboard:1.8.0
 ```
-
